@@ -2,9 +2,11 @@ const fs = require('fs');
 const http = require('http')
 const url = require('url')
 
+const slugify = require('slugify')
+
+const replaceTemplate = require('./modules/replaceTemplate');
+
 // fs and http called modules which we used to make calls
-
-
 
 
 // FILE
@@ -33,21 +35,23 @@ const url = require('url')
 
 ////////////////////////////
 // SERVER   
-    const replaceTemplate = (temp, product) => {
-        let output = temp;
-        output= output.replace(/{%PRODUCTNAME%}/g, product.productName);
-        output = output.replace(/{%IMAGE%}/g, product.image);
-        output = output.replace(/{%PRICE%}/g, product.price);
-        output = output.replace(/{%FROM%}/g, product.from);
-        output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
-        output = output.replace(/{%QUANTITY%}/g, product.quantity);
-        output = output.replace(/{%DESCRIPTION%}/g, product.description);
-        output = output.replace(/{%ID%}/g, product.id);
+
+
+    // const replaceTemplate = (temp, product) => {
+    //     let output = temp;
+    //     output= output.replace(/{%PRODUCTNAME%}/g, product.productName);
+    //     output = output.replace(/{%IMAGE%}/g, product.image);
+    //     output = output.replace(/{%PRICE%}/g, product.price);
+    //     output = output.replace(/{%FROM%}/g, product.from);
+    //     output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
+    //     output = output.replace(/{%QUANTITY%}/g, product.quantity);
+    //     output = output.replace(/{%DESCRIPTION%}/g, product.description);
+    //     output = output.replace(/{%ID%}/g, product.id);
         
 
-        if(!product.organic) output = output.replace(/{%NOT_ORGANIC%}/g, 'not-organic');
-        return output
-    }
+    //     if(!product.organic) output = output.replace(/{%NOT_ORGANIC%}/g, 'not-organic');
+    //     return output
+    // }
 
 const tempOverview = fs.readFileSync(`${__dirname}/templates/overview.html`, 'utf-8');
 const tempProduct = fs.readFileSync(`${__dirname}/templates/product.html`, 'utf-8');
@@ -58,12 +62,14 @@ const tempCard = fs.readFileSync(`${__dirname}/templates/card.html`, 'utf-8');
 const data =  fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
 const productData = JSON.parse(data);
 
+const slugs = productData.map(el => slugify(el.productName, {lower: true}))
+
 const server = http.createServer((req, res) => {
-    const pathName = req.url;
+    const { query, pathname} = url.parse(req.url, true);
 
 
     // Overview page
-    if(pathName === '/' || pathName === 'overview'){
+    if(pathname === '/' || pathname === 'overview'){
 
         res.writeHead(200,{'Content-type': 'text/html'});
 
@@ -73,11 +79,15 @@ const server = http.createServer((req, res) => {
         res.end(output);
 
         // Product page
-    }else if (pathName === '/product'){
-        res.end('This is the PRODUCT')
+    }else if (pathname === '/product'){
+        res.writeHead(200, {'Content-type': 'text/html'})
+        const product = productData[query.id];
+        const output = replaceTemplate(tempProduct, product)
+       
+        res.end(output)
 
         // API page
-    }else if(pathName === '/api'){
+    }else if(pathname === '/api'){
         // THIS WAS THE ASYNCHRONOUS WAY TO FETCH THE DATA
 
         // fs.readFile(`${__dirname}/dev-data/data.json`, 'utf-8', (err, data) => {            
