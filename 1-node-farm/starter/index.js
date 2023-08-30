@@ -62,7 +62,7 @@ const tempCard = fs.readFileSync(`${__dirname}/templates/card.html`, 'utf-8');
 const data =  fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
 const productData = JSON.parse(data);
 
-const slugs = productData.map(el => slugify(el.productName, {lower: true}))
+// const slugs = productData.map(el => slugify(el.productName, {lower: true}))
 
 const server = http.createServer((req, res) => {
     const { query, pathname} = url.parse(req.url, true);
