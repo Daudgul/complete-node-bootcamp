@@ -121,4 +121,4 @@ const writeFilePro = (file, data) => {
 
     }
 
-    getAlldogsImages()
+    // getAlldogsImages()
