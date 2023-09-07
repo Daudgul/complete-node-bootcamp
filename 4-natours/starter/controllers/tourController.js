@@ -2,6 +2,27 @@
 const fs = require('fs');
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
 
+exports.validateObjectMiddleware = (req, res, next) => {
+    const { name, price } = req.body;
+  
+    if (!name || !price) {
+      return res.status(400).json({ error: 'Missing required properties: name and price' });
+    }
+  
+    // If both properties are present, continue with the next middleware
+    next();
+  };
+
+exports.checkId = (req,res,next,val) => {       
+    if(req.params.id * 1 > tours.length){
+        return res.status(404).json({
+            status: 'fail',
+            message: 'Invalid ID'
+        })
+    }
+    next()
+}
+
 exports.getAllTours =  (req, res) => {
     res.status(200).json({
         status: 'success',
@@ -18,13 +39,6 @@ exports.getTour =  (req, res) => {  // when we use : the route it become a varib
     console.log(req.params); // it store all the route varible like {id: '5', x: 'user'}
     
     const id = req.params.id * 1;
-    
-    if(id > tours.length) {
-        return res.status(404).json({
-            status : 'fail',
-            message: 'Invalid ID'
-        });
-    }
     
     const tour = tours.find(el => el.id === id)
 
@@ -61,14 +75,7 @@ exports.createTour = (req, res) => {
     
     
     exports.updateTour = (req,res) => {
-        
-        if(req.params.id * 1 > tours.length){
-            return res.status(404).json({
-                status: 'fail',
-                message: 'Invalid ID'
-            })
-        }
-        
+     
         res.status(200).json({
             status: 'success',
             data: {
@@ -78,13 +85,7 @@ exports.createTour = (req, res) => {
     }
     
     exports.deleteTour = (req,res) => {
-        
-        if(req.params.id * 1 > tours.length){
-            return res.status(404).json({
-                status: 'fail',
-                message: 'Invalid ID'
-            })
-        }
+       
         
         res.status(204).json({
             status: 'success',
