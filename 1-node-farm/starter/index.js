@@ -5,6 +5,7 @@ const url = require('url')
 const slugify = require('slugify')
 
 const replaceTemplate = require('./modules/replaceTemplate');
+//this is updated code
 
 // fs and http called modules which we used to make calls
 
